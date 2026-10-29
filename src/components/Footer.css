@@ -1,0 +1,41 @@
+.site-footer {
+    margin-top: 55px;
+    padding: 22px 18px;
+    background: #001a33;
+    color: #fff;
+    text-align: center;
+    font-size: 14px;
+}
+
+.site-footer p {
+    margin: 0 0 9px;
+    color: #fff;
+    text-align: center;
+}
+
+.site-footer a {
+    color: #ffcc00;
+    text-decoration: none;
+}
+
+.site-footer a:hover {
+    text-decoration: underline;
+}
+
+.site-footer small {
+    display: block;
+    max-width: 900px;
+    margin: 0 auto;
+    color: #dce6f0;
+    line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+    .site-footer {
+        padding: 20px 14px;
+    }
+
+    .site-footer p {
+        line-height: 2;
+    }
+}
