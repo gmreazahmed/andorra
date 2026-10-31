@@ -1,173 +1,365 @@
+/* ========================================
+   HEADER BASE
+======================================== */
+
 .site-header {
     width: 100%;
+    position: relative;
+    z-index: 1000;
+    font-family: "Segoe UI", Arial, sans-serif;
+    box-sizing: border-box;
 }
 
+.site-header *,
+.site-header *::before,
+.site-header *::after {
+    box-sizing: border-box;
+}
+
+/* ========================================
+   BANNER
+======================================== */
+
 .site-banner {
-    position: relative;
     width: 100%;
+    position: relative;
     overflow: hidden;
-    background: #173b5c;
+    line-height: 0;
+    background: #eaf2fb;
 }
 
 .site-banner-image {
     display: block;
     width: 100%;
-    min-height: 130px;
-    max-height: 260px;
+    height: auto;
+    min-height: 100px;
     object-fit: cover;
+    object-position: center;
 }
 
 .banner-overlay {
     position: absolute;
     inset: 0;
     background: linear-gradient(90deg,
-            rgba(0, 20, 40, 0.65),
-            rgba(0, 20, 40, 0.05));
+            rgba(0, 25, 55, 0.25),
+            rgba(0, 25, 55, 0.02));
+    pointer-events: none;
 }
+
+/* ========================================
+   BANNER TITLE
+======================================== */
 
 .banner-title {
     position: absolute;
-    top: 50%;
-    left: clamp(18px, 8vw, 120px);
-    z-index: 2;
+    top: 45%;
+    left: clamp(24px, 10%, 160px);
+    transform: translateY(-50%);
     display: flex;
     flex-direction: column;
     gap: 5px;
-    transform: translateY(-50%);
-    color: #fff;
+    color: #ffffff;
+    line-height: 1.2;
+    z-index: 5;
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
 }
 
 .banner-title span {
-    font-size: clamp(16px, 2.2vw, 25px);
-    font-weight: 700;
+    font-size: clamp(14px, 1.4vw, 18px);
+    font-weight: 600;
 }
 
 .banner-title small {
     font-size: 13px;
+    font-weight: 400;
 }
+
+/* ========================================
+   LANGUAGE FLAGS
+======================================== */
 
 .language-flags {
     position: absolute;
-    top: 12px;
+    top: 8px;
     right: 20px;
-    z-index: 4;
     display: flex;
+    align-items: center;
     gap: 10px;
+    z-index: 20;
+    line-height: normal;
 }
 
 .language-link {
     position: relative;
     display: inline-flex;
-    border-radius: 3px;
-    opacity: 0.75;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
 }
 
 .language-link img {
+    display: block;
     width: 24px;
     height: 24px;
     object-fit: contain;
+    opacity: 0.65;
+    cursor: pointer;
+    transition: opacity 0.2s ease,
+        transform 0.2s ease;
 }
 
-.language-link:hover,
-.language-link.active {
+.language-link:hover img {
     opacity: 1;
-    outline: 2px solid #fff;
-    outline-offset: 2px;
+    transform: translateY(-2px);
 }
+
+/* Tooltip */
 
 .language-link::after {
-    position: absolute;
-    top: 31px;
-    left: 50%;
-    padding: 4px 7px;
-    transform: translateX(-50%);
     content: attr(data-label);
-    color: #fff;
-    background: rgba(0, 0, 0, 0.85);
-    border-radius: 4px;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 9px;
+    background: rgba(0, 0, 0, 0.88);
+    color: #ffffff;
     font-size: 12px;
     white-space: nowrap;
+    border-radius: 4px;
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
+    transition: 0.2s ease;
 }
 
 .language-link:hover::after {
     opacity: 1;
+    visibility: visible;
 }
+
+/* ========================================
+   NAVIGATION
+======================================== */
 
 .main-nav {
     position: sticky;
     top: 0;
-    z-index: 1000;
+    width: 100%;
+    min-height: 53px;
+    padding: 8px 30px;
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
+    justify-content: space-between;
     gap: 12px;
-    padding: 10px 30px;
+    flex-wrap: wrap;
     background: #003366;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
 }
 
 .nav-links {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 3px;
+    gap: 2px;
 }
 
-.nav-link,
-.login-btn {
+.nav-link {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    padding: 9px 12px;
+    justify-content: center;
+    padding: 9px 14px;
     border-radius: 4px;
-    color: #fff;
+    color: #ffffff;
     font-size: 14px;
-    font-weight: 650;
+    font-weight: 600;
     text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s ease;
 }
 
-.nav-link:hover,
-.nav-active,
-.login-btn:hover {
+.nav-link:hover {
     background: #0055aa;
+    color: #ffffff;
 }
 
 .nav-active {
     text-decoration: underline;
-    text-underline-offset: 4px;
+    text-underline-offset: 5px;
+    text-decoration-thickness: 1px;
+}
+
+/* ========================================
+   RIGHT NAVIGATION
+======================================== */
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
 }
 
 .login-btn {
-    margin-left: auto;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 18px;
+    background: #004080;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
     white-space: nowrap;
+    transition: background 0.2s ease;
 }
 
-@media (max-width: 768px) {
-    .site-banner-image {
-        min-height: 110px;
-    }
+.login-btn:hover {
+    background: #0055aa;
+    color: #ffffff;
+}
 
-    .banner-title small {
-        display: none;
-    }
+.job-seeker-link {
+    background: transparent;
+}
 
+/* ========================================
+   TABLET
+======================================== */
+
+@media (max-width: 1024px) {
     .main-nav {
-        position: relative;
-        padding: 10px 12px;
-    }
-
-    .nav-links {
-        width: 100%;
+        padding: 8px 16px;
+        gap: 8px;
     }
 
     .nav-link {
-        padding: 8px 9px;
+        padding: 9px 10px;
         font-size: 13px;
     }
 
     .login-btn {
+        padding: 9px 12px;
+        font-size: 13px;
+    }
+}
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 768px) {
+
+    .site-banner-image {
+        min-height: 95px;
+        object-fit: cover;
+    }
+
+    .banner-title {
+        display: flex;
+        left: 16px;
+        top: 58%;
+        max-width: 65%;
+    }
+
+    .banner-title span {
+        font-size: 13px;
+    }
+
+    .banner-title small {
+        font-size: 10px;
+    }
+
+    .language-flags {
+        top: 8px;
+        right: 12px;
+        gap: 8px;
+    }
+
+    .language-link img {
+        width: 21px;
+        height: 21px;
+    }
+
+    .main-nav {
+        position: sticky;
+        top: 0;
+        padding: 7px 10px;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .nav-links {
+        width: 100%;
+        justify-content: center;
+        gap: 2px;
+    }
+
+    .nav-right {
+        width: 100%;
+        justify-content: center;
         margin-left: 0;
+    }
+
+    .nav-link {
+        padding: 8px 9px;
+        font-size: 12px;
+    }
+
+    .login-btn {
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+}
+
+/* ========================================
+   SMALL MOBILE
+======================================== */
+
+@media (max-width: 480px) {
+
+    .site-banner-image {
+        min-height: 85px;
+    }
+
+    .banner-title {
+        left: 12px;
+        max-width: 60%;
+    }
+
+    .banner-title span {
+        font-size: 11px;
+    }
+
+    .banner-title small {
+        font-size: 9px;
+    }
+
+    .language-flags {
+        right: 8px;
+        gap: 6px;
+    }
+
+    .language-link img {
+        width: 19px;
+        height: 19px;
+    }
+
+    .main-nav {
+        padding: 6px 5px;
+    }
+
+    .nav-link {
+        padding: 7px 7px;
+        font-size: 11px;
+    }
+
+    .login-btn {
+        padding: 7px 11px;
+        font-size: 11px;
     }
 }
