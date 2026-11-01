@@ -1,103 +1,131 @@
 import { NavLink } from "react-router-dom";
 import "./Header.css";
 
-const languages = [
-  {
-    label: "Català",
-    image: "/assets/flags/andorra.png",
-    href: "?lang=ca",
-  },
-  {
-    label: "Español",
-    image: "/assets/flags/es.png",
-    href: "?lang=es",
-  },
-  {
-    label: "Français",
-    image: "/assets/flags/fr.png",
-    href: "?lang=fr",
-  },
-  {
-    label: "English",
-    image: "/assets/flags/uk.png",
-    href: "?lang=en",
-  },
+const mainLinks = [
+  { label: "Home", href: "/" },
+  { label: "Visa Status Check", href: "/visa-status-check" },
+  { label: "FAQ", href: "#" },
+  { label: "Contact Us", href: "#" },
 ];
 
-const links = [
-  { label: "Home", href: "/" },
-  { label: "Visa Status Check", href: "/status" },
-  { label: "Employment Status Check", href: "/employment-status" },
-  { label: "FAQ", href: "/faq" },
-  { label: "Contact Us", href: "/contact" },
-  { label: "Job Seeker", href: "/job-seeker" },
-];
+function LanguageFlags() {
+  return (
+    <div className="portal-languages">
+      {/* Andorra */}
+      <span className="portal-language">
+        <svg viewBox="0 0 24 16" aria-label="Andorra">
+          <rect width="8" height="16" fill="#10069f" />
+          <rect x="8" width="8" height="16" fill="#fedd00" />
+          <rect x="16" width="8" height="16" fill="#d50032" />
+        </svg>
+      </span>
+
+      {/* Spain */}
+      <span className="portal-language">
+        <svg viewBox="0 0 24 16" aria-label="Spain">
+          <rect width="24" height="16" fill="#c60b1e" />
+          <rect y="4" width="24" height="8" fill="#ffc400" />
+        </svg>
+      </span>
+
+      {/* France */}
+      <span className="portal-language">
+        <svg viewBox="0 0 24 16" aria-label="France">
+          <rect width="8" height="16" fill="#0055a4" />
+          <rect x="8" width="8" height="16" fill="#ffffff" />
+          <rect x="16" width="8" height="16" fill="#ef4135" />
+        </svg>
+      </span>
+
+      {/* English */}
+      <span className="portal-language language-active">
+        <svg viewBox="0 0 24 16" aria-label="English">
+          <rect width="24" height="16" fill="#012169" />
+          <path d="M0 0 24 16M24 0 0 16" stroke="#ffffff" strokeWidth="3" />
+          <path d="M0 0 24 16M24 0 0 16" stroke="#c8102e" strokeWidth="1.4" />
+          <path d="M12 0v16M0 8h24" stroke="#ffffff" strokeWidth="5" />
+          <path d="M12 0v16M0 8h24" stroke="#c8102e" strokeWidth="3" />
+        </svg>
+      </span>
+    </div>
+  );
+}
+
+function NavigationLink({ to, children, end = false }) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      className={({ isActive }) =>
+        `portal-nav-link ${isActive ? "portal-nav-active" : ""}`
+      }
+    >
+      {children}
+    </NavLink>
+  );
+}
 
 export default function Header() {
   return (
-    <header className="site-header">
-      {/* Banner */}
-      <div className="site-banner">
-        <img
-          className="site-banner-image"
-          src="/assets/banner1.jpg"
-          alt="Andorra landscape"
-        />
+    <header className="portal-header">
+      {/* HEADER TOP */}
+      <div className="portal-header-inner">
+        {/* LEFT: COAT OF ARMS AND MINISTRY NAME */}
+        <div className="portal-header-left">
+          <img
+            alt="Coat of arms of the Ministry of Foreign Affairs and European Integration of Andorra"
+            width="816"
+            height="816"
+            loading="eager"
+            className="portal-header-emblem"
+            src="/assets/coat-of-arms.png"
+          />
 
-        <div className="banner-overlay" />
-
-        {/* Language Flags */}
-        <div className="language-flags">
-          {languages.map((language) => (
-            <a
-              key={language.label}
-              href={language.href}
-              data-label={language.label}
-              className="language-link"
-              aria-label={language.label}
-            >
-              <img src={language.image} alt={language.label} />
-            </a>
-          ))}
+          <p className="portal-header-title">
+            Ministry of Foreign Affairs and European Integration
+            <br />
+            of the Republic of Andorra
+          </p>
         </div>
 
-        {/* Banner Title */}
-        <div className="banner-title">
-          <span>Andorra Travel &amp; Visa Information</span>
-          <small>Independent travel and entry information resource</small>
+        {/* RIGHT: LANGUAGE AND EVISA LOGO */}
+        <div className="portal-header-right">
+          <LanguageFlags />
+
+          <div className="portal-header-logo">
+            <img
+              alt="eVisa Andorra"
+              width="1024"
+              height="640"
+              loading="eager"
+              src="/assets/evisa-logo.png"
+            />
+          </div>
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="main-nav" aria-label="Main navigation">
-        <div className="nav-links">
-          {links.slice(0, 5).map((link) => (
-            <NavLink
-              key={link.href}
-              to={link.href}
-              end={link.href === "/"}
-              className={({ isActive }) =>
-                `nav-link ${isActive ? "nav-active" : ""}`
-              }
-            >
-              {link.label}
-            </NavLink>
-          ))}
-        </div>
+      {/* NAVIGATION */}
+      <nav className="portal-nav" aria-label="Main navigation">
+        <div className="portal-nav-inner">
+          {/* LEFT LINKS */}
+          <div className="portal-nav-links">
+            {mainLinks.map((link) => (
+              <NavigationLink
+                key={link.href}
+                to={link.href}
+                end={link.href === "/"}
+              >
+                {link.label}
+              </NavigationLink>
+            ))}
+          </div>
 
-        <div className="nav-right">
-          <a className="login-btn" href="/employer-login">
-            Employer Login
-          </a>
+          {/* RIGHT LINKS */}
+          <div className="portal-nav-right">
+            <NavigationLink to="/employer-login">Employer Login</NavigationLink>
 
-          <NavLink
-            to="/job-seeker"
-            className={({ isActive }) =>
-              `nav-link job-seeker-link ${isActive ? "nav-active" : ""}`
-            }
-          >
-            Job Seeker
-          </NavLink>
+            <NavigationLink to="/job-seeker">Job Seeker</NavigationLink>
+          </div>
         </div>
       </nav>
     </header>

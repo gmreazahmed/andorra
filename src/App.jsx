@@ -26,7 +26,7 @@ function AppLayout() {
 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/status" element={<Status />} />
+        <Route path="/visa-status-check" element={<Status />} />
         <Route path="/result" element={<Result />} />
 
         <Route path="/admin/login" element={<AdminLogin />} />

@@ -238,17 +238,7 @@ export default function Home() {
         </p>
       </ContentSection>
 
-      {/* Entry Information */}
-      <section className="visa-note">
-        <h2>Visa and Entry Information</h2>
-
-        <p>
-          This website is an independent information resource and does not
-          process visa applications. Confirm entry requirements, permitted stay,
-          and application procedures with the relevant official authorities or
-          consular service for your nationality.
-        </p>
-      </section>
+      
     </div>
   );
 }

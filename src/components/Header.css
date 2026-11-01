@@ -1,365 +1,257 @@
-/* ========================================
-   HEADER BASE
-======================================== */
+/* =========================================
+   HEADER
+========================================= */
 
-.site-header {
-    width: 100%;
-    position: relative;
-    z-index: 1000;
-    font-family: "Segoe UI", Arial, sans-serif;
-    box-sizing: border-box;
-}
-
-.site-header *,
-.site-header *::before,
-.site-header *::after {
-    box-sizing: border-box;
-}
-
-/* ========================================
-   BANNER
-======================================== */
-
-.site-banner {
-    width: 100%;
+.portal-header {
     position: relative;
     overflow: hidden;
-    line-height: 0;
-    background: #eaf2fb;
+    background: linear-gradient(100deg,
+            oklch(55% 0.17 256) 0%,
+            oklch(47% 0.16 258) 55%,
+            oklch(40% 0.14 258) 100%);
 }
 
-.site-banner-image {
-    display: block;
-    width: 100%;
-    height: auto;
-    min-height: 100px;
-    object-fit: cover;
-    object-position: center;
-}
-
-.banner-overlay {
+.portal-header::before {
+    content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg,
-            rgba(0, 25, 55, 0.25),
-            rgba(0, 25, 55, 0.02));
     pointer-events: none;
+    background: linear-gradient(115deg,
+            transparent 42%,
+            oklch(100% 0 0 / 0.08) 42% 60%,
+            transparent 60%);
 }
 
-/* ========================================
-   BANNER TITLE
-======================================== */
+/* HEADER INNER */
 
-.banner-title {
-    position: absolute;
-    top: 45%;
-    left: clamp(24px, 10%, 160px);
-    transform: translateY(-50%);
+.portal-header-inner {
+    position: relative;
+    z-index: 10;
+    max-width: 80rem;
+    margin-inline: auto;
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+
+    padding: 3.5rem 1rem 2.5rem;
+}
+
+/* LEFT SECTION */
+
+.portal-header-left {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 1.25rem;
+    min-width: 0;
+}
+
+.portal-header-emblem {
+    display: block;
+    width: 5rem;
+    height: 5rem;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+
+.portal-header-title {
+    margin: 0;
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.75rem;
+}
+
+/* RIGHT SECTION */
+
+.portal-header-right {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    color: #ffffff;
-    line-height: 1.2;
-    z-index: 5;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+    align-items: flex-end;
+    gap: 1rem;
 }
 
-.banner-title span {
-    font-size: clamp(14px, 1.4vw, 18px);
-    font-weight: 600;
-}
-
-.banner-title small {
-    font-size: 13px;
-    font-weight: 400;
-}
-
-/* ========================================
-   LANGUAGE FLAGS
-======================================== */
-
-.language-flags {
-    position: absolute;
-    top: 8px;
-    right: 20px;
+.portal-languages {
     display: flex;
     align-items: center;
-    gap: 10px;
-    z-index: 20;
-    line-height: normal;
+    gap: 0.5rem;
 }
 
-.language-link {
-    position: relative;
+.portal-language {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    text-decoration: none;
+    padding: 0.125rem;
 }
 
-.language-link img {
+.portal-language svg {
     display: block;
-    width: 24px;
-    height: 24px;
+    width: 1.5rem;
+    height: 1rem;
+}
+
+.portal-language.language-active {
+    background: #fff;
+    border-radius: 0.375rem;
+}
+
+.portal-header-logo {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+    padding-bottom: 0.75rem;
+}
+
+.portal-header-logo img {
+    display: block;
+    width: 14rem;
+    height: auto;
     object-fit: contain;
-    opacity: 0.65;
-    cursor: pointer;
-    transition: opacity 0.2s ease,
-        transform 0.2s ease;
 }
 
-.language-link:hover img {
-    opacity: 1;
-    transform: translateY(-2px);
-}
-
-/* Tooltip */
-
-.language-link::after {
-    content: attr(data-label);
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 5px 9px;
-    background: rgba(0, 0, 0, 0.88);
-    color: #ffffff;
-    font-size: 12px;
-    white-space: nowrap;
-    border-radius: 4px;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: 0.2s ease;
-}
-
-.language-link:hover::after {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* ========================================
+/* =========================================
    NAVIGATION
-======================================== */
+========================================= */
 
-.main-nav {
-    position: sticky;
-    top: 0;
+.portal-nav {
+    position: relative;
+    z-index: 10;
     width: 100%;
-    min-height: 53px;
-    padding: 8px 30px;
+    background: var(--portal-navy, #142d50);
+}
+
+.portal-nav-inner {
+    max-width: 80rem;
+    margin-inline: auto;
+
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-    background: #003366;
-    z-index: 1000;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+
+    column-gap: 2rem;
+    row-gap: 0.5rem;
+
+    padding: 1.25rem 1rem;
 }
 
-.nav-links {
+.portal-nav-links,
+.portal-nav-right {
     display: flex;
-    align-items: center;
     flex-wrap: wrap;
-    gap: 2px;
+    align-items: center;
+    column-gap: 2rem;
+    row-gap: 0.5rem;
 }
 
-.nav-link {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 9px 14px;
-    border-radius: 4px;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 600;
+.portal-nav-link {
+    display: inline-block;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.5;
     text-decoration: none;
     white-space: nowrap;
-    transition: background 0.2s ease;
+    transition: opacity 0.2s ease;
 }
 
-.nav-link:hover {
-    background: #0055aa;
-    color: #ffffff;
-}
-
-.nav-active {
+.portal-nav-link:hover {
     text-decoration: underline;
-    text-underline-offset: 5px;
-    text-decoration-thickness: 1px;
 }
 
-/* ========================================
-   RIGHT NAVIGATION
-======================================== */
-
-.nav-right {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-left: auto;
+.portal-nav-link.portal-nav-active {
+    text-decoration: underline;
+    text-underline-offset: 4px;
 }
 
-.login-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 9px 18px;
-    background: #004080;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 6px;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: background 0.2s ease;
-}
+/* =========================================
+   RESPONSIVE
+========================================= */
 
-.login-btn:hover {
-    background: #0055aa;
-    color: #ffffff;
-}
-
-.job-seeker-link {
-    background: transparent;
-}
-
-/* ========================================
-   TABLET
-======================================== */
-
-@media (max-width: 1024px) {
-    .main-nav {
-        padding: 8px 16px;
-        gap: 8px;
+@media (min-width: 768px) {
+    .portal-header-inner {
+        padding-left: 2rem;
+        padding-right: 2rem;
     }
 
-    .nav-link {
-        padding: 9px 10px;
-        font-size: 13px;
+    .portal-header-emblem {
+        width: 6rem;
+        height: 6rem;
     }
 
-    .login-btn {
-        padding: 9px 12px;
-        font-size: 13px;
+    .portal-header-title {
+        font-size: 1.5rem;
+        line-height: 2rem;
+    }
+
+    .portal-header-logo img {
+        width: 16rem;
+    }
+
+    .portal-nav-inner {
+        padding-left: 2rem;
+        padding-right: 2rem;
     }
 }
 
-/* ========================================
-   MOBILE
-======================================== */
+/* MOBILE */
 
-@media (max-width: 768px) {
-
-    .site-banner-image {
-        min-height: 95px;
-        object-fit: cover;
+@media (max-width: 767px) {
+    .portal-header-inner {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.5rem;
+        padding: 2rem 1rem;
     }
 
-    .banner-title {
-        display: flex;
-        left: 16px;
-        top: 58%;
-        max-width: 65%;
+    .portal-header-left {
+        gap: 1rem;
     }
 
-    .banner-title span {
-        font-size: 13px;
+    .portal-header-emblem {
+        width: 4.5rem;
+        height: 4.5rem;
     }
 
-    .banner-title small {
-        font-size: 10px;
+    .portal-header-title {
+        font-size: 1rem;
+        line-height: 1.5rem;
     }
 
-    .language-flags {
-        top: 8px;
-        right: 12px;
-        gap: 8px;
+    .portal-header-right {
+        align-items: flex-end;
     }
 
-    .language-link img {
-        width: 21px;
-        height: 21px;
+    .portal-header-logo img {
+        width: 12rem;
     }
 
-    .main-nav {
-        position: sticky;
-        top: 0;
-        padding: 7px 10px;
-        justify-content: center;
-        gap: 5px;
+    .portal-nav-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
     }
 
-    .nav-links {
+    .portal-nav-links,
+    .portal-nav-right {
         width: 100%;
-        justify-content: center;
-        gap: 2px;
+        column-gap: 1.25rem;
+        row-gap: 0.75rem;
     }
 
-    .nav-right {
-        width: 100%;
-        justify-content: center;
-        margin-left: 0;
-    }
-
-    .nav-link {
-        padding: 8px 9px;
-        font-size: 12px;
-    }
-
-    .login-btn {
-        padding: 8px 14px;
-        font-size: 12px;
+    .portal-nav-link {
+        font-size: 14px;
     }
 }
 
-/* ========================================
-   SMALL MOBILE
-======================================== */
-
-@media (max-width: 480px) {
-
-    .site-banner-image {
-        min-height: 85px;
+@media (max-width: 380px) {
+    .portal-header-title {
+        font-size: 0.9rem;
     }
 
-    .banner-title {
-        left: 12px;
-        max-width: 60%;
-    }
-
-    .banner-title span {
-        font-size: 11px;
-    }
-
-    .banner-title small {
-        font-size: 9px;
-    }
-
-    .language-flags {
-        right: 8px;
-        gap: 6px;
-    }
-
-    .language-link img {
-        width: 19px;
-        height: 19px;
-    }
-
-    .main-nav {
-        padding: 6px 5px;
-    }
-
-    .nav-link {
-        padding: 7px 7px;
-        font-size: 11px;
-    }
-
-    .login-btn {
-        padding: 7px 11px;
-        font-size: 11px;
+    .portal-nav-links,
+    .portal-nav-right {
+        column-gap: 1rem;
     }
 }
