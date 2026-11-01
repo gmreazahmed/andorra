@@ -5,17 +5,21 @@ import "./Admin.css";
 const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
 
 const EMPTY_FORM = {
-  application_id: "",
-  visa_grant_number: "",
-  applicant_name: "",
-  travel_document_number: "",
-  date_of_birth: "",
+  surname: "",
+  given_names: "",
+  sex: "",
+  dob: "",
   nationality: "",
-  application_type: "",
-  submission_date: "",
+  application_id: "",
+  application_date: "",
+  territory: "",
+  travel_document: "",
+  visa_category: "",
+  grant_number: "",
+  grant_date: "",
+  validity_date: "",
   status: "Pending",
-  decision_date: "",
-  expiry_date: "",
+  status_message: "",
 };
 
 const STATUS_OPTIONS = [
@@ -32,13 +36,21 @@ AFGHAN|ALBANIAN|ALGERIAN / ALGERIENNE|AMERICAN|ANDORRAN|ANGOLAN|ANGUILLAN|ANTIGU
   .trim()
   .split("|");
 
+const PHOTO_MAX_SIZE = 5 * 1024 * 1024;
+const PDF_MAX_SIZE = 10 * 1024 * 1024;
+
 function formatDate(value) {
-  return value ? String(value).slice(0, 10) : "";
+  if (!value) return "";
+  return String(value).slice(0, 10);
+}
+
+function getApplicantName(record) {
+  return [record.surname, record.given_names].filter(Boolean).join(" ");
 }
 
 async function apiRequest(endpoint, options = {}) {
   if (!API_URL) {
-    throw new Error("API URL is not configured.");
+    throw new Error("API URL is not configured. Check VITE_API_URL.");
   }
 
   const response = await fetch(`${API_URL}/${endpoint}`, {
@@ -58,10 +70,13 @@ async function apiRequest(endpoint, options = {}) {
   }
 
   if (!response.ok || data.success === false) {
+    if (response.status === 401 || response.status === 403) {
+      throw new Error("Your admin session has expired. Please log in again.");
+    }
+
     if (response.status === 409) {
       throw new Error(
-        data.message ||
-          "Duplicate application. Check whether the Application ID or Visa Grant Number already exists.",
+        data.message || "This Application ID or Grant Number already exists.",
       );
     }
 
@@ -76,27 +91,32 @@ export default function Admin() {
 
   const [checking, setChecking] = useState(true);
   const [records, setRecords] = useState([]);
-  const [form, setForm] = useState(EMPTY_FORM);
+  const [form, setForm] = useState({ ...EMPTY_FORM });
+
   const [photo, setPhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState("");
+  const [pdf, setPdf] = useState(null);
+
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [search, setSearch] = useState("");
 
+  // Applicant photo preview
   useEffect(() => {
     if (!photo) {
       setPhotoPreview("");
       return undefined;
     }
 
-    const url = URL.createObjectURL(photo);
-    setPhotoPreview(url);
+    const objectUrl = URL.createObjectURL(photo);
+    setPhotoPreview(objectUrl);
 
-    return () => URL.revokeObjectURL(url);
+    return () => URL.revokeObjectURL(objectUrl);
   }, [photo]);
 
+  // Load records
   const loadRecords = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -112,6 +132,7 @@ export default function Admin() {
     }
   }, []);
 
+  // Frontend route guard only. The PHP API must also verify admin sessions.
   useEffect(() => {
     const loggedIn = sessionStorage.getItem("admin_logged_in") === "true";
 
@@ -134,15 +155,27 @@ export default function Admin() {
   }
 
   function resetForm() {
-    setForm(EMPTY_FORM);
+    setForm({ ...EMPTY_FORM });
     setPhoto(null);
+    setPdf(null);
     setEditingId(null);
 
-    const input = document.getElementById("applicant-photo");
+    const photoInput = document.getElementById("applicant-photo");
+    const pdfInput = document.getElementById("applicant-pdf");
 
-    if (input) input.value = "";
+    if (photoInput) photoInput.value = "";
+    if (pdfInput) pdfInput.value = "";
   }
 
+  function handlePhotoChange(event) {
+    setPhoto(event.target.files?.[0] || null);
+  }
+
+  function handlePdfChange(event) {
+    setPdf(event.target.files?.[0] || null);
+  }
+
+  // Create / Update record
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -155,15 +188,31 @@ export default function Admin() {
     }
 
     if (photo) {
-      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      const allowedPhotoTypes = ["image/jpeg", "image/png", "image/webp"];
 
-      if (!allowedTypes.includes(photo.type)) {
+      if (!allowedPhotoTypes.includes(photo.type)) {
         setError("Photo must be JPG, PNG, or WEBP.");
         return;
       }
 
-      if (photo.size > 5 * 1024 * 1024) {
+      if (photo.size > PHOTO_MAX_SIZE) {
         setError("Photo size must not exceed 5 MB.");
+        return;
+      }
+    }
+
+    if (pdf) {
+      const isPdf =
+        pdf.type === "application/pdf" ||
+        pdf.name.toLowerCase().endsWith(".pdf");
+
+      if (!isPdf) {
+        setError("The application document must be a PDF file.");
+        return;
+      }
+
+      if (pdf.size > PDF_MAX_SIZE) {
+        setError("PDF size must not exceed 10 MB.");
         return;
       }
     }
@@ -174,7 +223,7 @@ export default function Admin() {
       const body = new FormData();
 
       Object.entries(form).forEach(([key, value]) => {
-        body.append(key, value);
+        body.append(key, value ?? "");
       });
 
       if (editingId) {
@@ -183,6 +232,10 @@ export default function Admin() {
 
       if (photo) {
         body.append("photo", photo);
+      }
+
+      if (pdf) {
+        body.append("pdf", pdf);
       }
 
       const endpoint = editingId ? "edit.php" : "upload.php";
@@ -208,30 +261,38 @@ export default function Admin() {
     }
   }
 
+  // Populate edit form
   function handleEdit(record) {
     setEditingId(record.id);
 
     setForm({
-      application_id: record.application_id || "",
-      visa_grant_number: record.visa_grant_number || "",
-      applicant_name: record.applicant_name || "",
-      travel_document_number: record.travel_document_number || "",
-      date_of_birth: formatDate(record.date_of_birth),
+      surname: record.surname || "",
+      given_names: record.given_names || "",
+      sex: record.sex || "",
+      dob: formatDate(record.dob),
       nationality: record.nationality || "",
-      application_type: record.application_type || "",
-      submission_date: formatDate(record.submission_date),
+      application_id: record.application_id || "",
+      application_date: formatDate(record.application_date),
+      territory: record.territory || "",
+      travel_document: record.travel_document || "",
+      visa_category: record.visa_category || "",
+      grant_number: record.grant_number || "",
+      grant_date: formatDate(record.grant_date),
+      validity_date: formatDate(record.validity_date),
       status: record.status || "Pending",
-      decision_date: formatDate(record.decision_date),
-      expiry_date: formatDate(record.expiry_date),
+      status_message: record.status_message || "",
     });
 
     setPhoto(null);
+    setPdf(null);
     setError("");
     setSuccess("");
 
-    const input = document.getElementById("applicant-photo");
+    const photoInput = document.getElementById("applicant-photo");
+    const pdfInput = document.getElementById("applicant-pdf");
 
-    if (input) input.value = "";
+    if (photoInput) photoInput.value = "";
+    if (pdfInput) pdfInput.value = "";
 
     window.scrollTo({
       top: 0,
@@ -239,17 +300,20 @@ export default function Admin() {
     });
   }
 
+  // Delete record
   async function handleDelete(id) {
-    if (!window.confirm("Delete this application record permanently?")) {
-      return;
-    }
+    const confirmed = window.confirm(
+      "Are you sure you want to permanently delete this record?",
+    );
+
+    if (!confirmed) return;
 
     setError("");
     setSuccess("");
     setLoading(true);
 
     try {
-      await apiRequest("delete.php", {
+      const data = await apiRequest("delete.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -261,11 +325,10 @@ export default function Admin() {
         resetForm();
       }
 
-      setSuccess("Application record deleted successfully.");
-
+      setSuccess(data.message || "Record deleted successfully.");
       await loadRecords();
     } catch (err) {
-      setError(err.message || "Unable to delete the record.");
+      setError(err.message || "Unable to delete this record.");
     } finally {
       setLoading(false);
     }
@@ -276,6 +339,7 @@ export default function Admin() {
     navigate("/admin/login", { replace: true });
   }
 
+  // Search records
   const filteredRecords = useMemo(() => {
     const keyword = search.trim().toLowerCase();
 
@@ -283,10 +347,11 @@ export default function Admin() {
 
     return records.filter((record) =>
       [
+        record.surname,
+        record.given_names,
         record.application_id,
-        record.visa_grant_number,
-        record.applicant_name,
-        record.travel_document_number,
+        record.grant_number,
+        record.travel_document,
         record.nationality,
         record.status,
       ].some((value) =>
@@ -297,7 +362,13 @@ export default function Admin() {
     );
   }, [records, search]);
 
-  function renderInput(label, name, type = "text", required = false) {
+  function renderInput(
+    label,
+    name,
+    type = "text",
+    required = false,
+    placeholder,
+  ) {
     return (
       <div className="admin-field" key={name}>
         <label htmlFor={name}>
@@ -309,11 +380,14 @@ export default function Admin() {
           id={name}
           name={name}
           type={type}
-          value={form[name]}
+          value={form[name] ?? ""}
           onChange={handleChange}
           required={required}
           autoComplete="off"
-          placeholder={type === "date" ? "" : `Enter ${label.toLowerCase()}`}
+          placeholder={
+            placeholder ??
+            (type === "date" ? "" : `Enter ${label.toLowerCase()}`)
+          }
         />
       </div>
     );
@@ -325,6 +399,7 @@ export default function Admin() {
 
   return (
     <div className="admin-dashboard">
+      {/* Topbar */}
       <header className="admin-topbar">
         <div>
           <h2>Application Admin</h2>
@@ -393,55 +468,45 @@ export default function Admin() {
           </div>
         </section>
 
-        {/* Add / Edit Application */}
+        {/* Add / Edit form */}
         <section className="admin-section">
           <div className="admin-section-heading">
             <div>
               <h2>{editingId ? "Edit Application" : "Add Application"}</h2>
-
               <p>
                 {editingId
                   ? "Update the selected application record."
-                  : "Add an authorized application record to the database."}
+                  : "Add an application record to the database."}
               </p>
             </div>
           </div>
 
           <form className="admin-upload-form" onSubmit={handleSubmit}>
+            {/* Applicant information */}
             <div className="admin-form-section-title">
-              01. Application Information
+              01. Applicant Information
             </div>
 
             <div className="admin-form-grid">
-              {renderInput("Application ID", "application_id", "text", true)}
+              {renderInput("Surname", "surname", "text", true)}
+              {renderInput("Given Name(s)", "given_names", "text", true)}
 
-              {renderInput("Visa Grant Number", "visa_grant_number")}
+              <div className="admin-field">
+                <label htmlFor="sex">Sex</label>
+                <select
+                  id="sex"
+                  name="sex"
+                  value={form.sex}
+                  onChange={handleChange}
+                >
+                  <option value="">Select</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
 
-              {renderInput(
-                "Application Type",
-                "application_type",
-                "text",
-                true,
-              )}
-
-              {renderInput("Submission Date", "submission_date", "date", true)}
-            </div>
-
-            <div className="admin-form-section-title">
-              02. Applicant Information
-            </div>
-
-            <div className="admin-form-grid">
-              {renderInput("Applicant Name", "applicant_name", "text", true)}
-
-              {renderInput(
-                "Travel Document Number",
-                "travel_document_number",
-                "text",
-                true,
-              )}
-
-              {renderInput("Date of Birth", "date_of_birth", "date", true)}
+              {renderInput("Date of Birth", "dob", "date", true)}
 
               <div className="admin-field">
                 <label htmlFor="nationality">
@@ -456,7 +521,6 @@ export default function Admin() {
                   required
                 >
                   <option value="">Select Nationality</option>
-
                   {NATIONALITY_OPTIONS.map((nationality) => (
                     <option key={nationality} value={nationality}>
                       {nationality}
@@ -464,13 +528,53 @@ export default function Admin() {
                   ))}
                 </select>
               </div>
+
+              {renderInput(
+                "Travel Document Number",
+                "travel_document",
+                "text",
+                true,
+              )}
             </div>
 
-            <div className="admin-form-section-title">03. Visa Decision</div>
+            {/* Application information */}
+            <div className="admin-form-section-title">
+              02. Application Information
+            </div>
 
             <div className="admin-form-grid">
+              {renderInput("Application ID", "application_id", "text", true)}
+              {renderInput(
+                "Application Date",
+                "application_date",
+                "date",
+                true,
+              )}
+              {renderInput("Territory to Visit", "territory", "text", true)}
+              {renderInput(
+                "E-Visa Category & Type",
+                "visa_category",
+                "text",
+                true,
+              )}
+            </div>
+
+            {/* Visa decision */}
+            <div className="admin-form-section-title">
+              03. Application Status & Decision
+            </div>
+
+            <div className="admin-form-grid">
+              {renderInput("E-Visa Grant Number", "grant_number")}
+
+              {renderInput("E-Visa Grant Date", "grant_date", "date")}
+
+              {renderInput("E-Visa Validity", "validity_date", "date")}
+
               <div className="admin-field">
-                <label htmlFor="status">Current Status *</label>
+                <label htmlFor="status">
+                  Current Status <span className="required-mark">*</span>
+                </label>
 
                 <select
                   id="status"
@@ -486,12 +590,24 @@ export default function Admin() {
                   ))}
                 </select>
               </div>
-
-              {renderInput("Decision Date", "decision_date", "date")}
-
-              {renderInput("Expiry Date", "expiry_date", "date")}
             </div>
 
+            <div className="admin-field admin-field-full">
+              <label htmlFor="status_message">
+                Status Message / Additional Information
+              </label>
+
+              <textarea
+                id="status_message"
+                name="status_message"
+                rows="3"
+                value={form.status_message}
+                onChange={handleChange}
+                placeholder="Enter an optional status message..."
+              />
+            </div>
+
+            {/* Applicant photo */}
             <div className="admin-form-section-title">04. Applicant Photo</div>
 
             <div className="admin-field admin-field-full">
@@ -504,13 +620,13 @@ export default function Admin() {
                 type="file"
                 name="photo"
                 accept="image/jpeg,image/png,image/webp"
-                onChange={(event) => setPhoto(event.target.files?.[0] || null)}
+                onChange={handlePhotoChange}
                 required={!editingId}
               />
 
               <small>
-                JPG, PNG or WEBP. Maximum 5 MB. The server must validate the
-                file too.
+                JPG, PNG or WEBP. Maximum 5 MB.
+                {editingId ? " Leave empty to keep the current photo." : ""}
               </small>
 
               {photoPreview && (
@@ -519,12 +635,39 @@ export default function Admin() {
                   <span>{photo?.name}</span>
                 </div>
               )}
+            </div>
 
-              {editingId && !photo && (
-                <small>Leave empty to keep the existing applicant photo.</small>
+            {/* Application PDF */}
+            <div className="admin-form-section-title">05. Application PDF</div>
+
+            <div className="admin-field admin-field-full">
+              <label htmlFor="applicant-pdf">
+                Upload Application PDF {editingId ? "(Optional)" : ""}
+              </label>
+
+              <input
+                id="applicant-pdf"
+                type="file"
+                name="pdf"
+                accept="application/pdf,.pdf"
+                onChange={handlePdfChange}
+              />
+
+              <small>
+                PDF only. Maximum 10 MB.
+                {editingId ? " Leave empty to keep the existing PDF." : ""}
+              </small>
+
+              {pdf && (
+                <div className="admin-file-selected">
+                  <span>PDF selected</span>
+                  <strong>{pdf.name}</strong>
+                  <small>{(pdf.size / (1024 * 1024)).toFixed(2)} MB</small>
+                </div>
               )}
             </div>
 
+            {/* Form actions */}
             <div className="admin-form-actions">
               {editingId && (
                 <button
@@ -552,7 +695,7 @@ export default function Admin() {
           </form>
         </section>
 
-        {/* Application Records */}
+        {/* Records table */}
         <section className="admin-section admin-records-section">
           <div className="admin-section-heading admin-records-heading">
             <div>
@@ -563,7 +706,7 @@ export default function Admin() {
             <div className="admin-search">
               <input
                 type="search"
-                placeholder="Search ID, visa number, name, passport..."
+                placeholder="Search name, ID, grant number, passport..."
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
@@ -576,27 +719,23 @@ export default function Admin() {
                 <tr>
                   <th>Applicant</th>
                   <th>Application ID</th>
-                  <th>Visa Grant No.</th>
+                  <th>Grant Number</th>
                   <th>Travel Document</th>
                   <th>Nationality</th>
                   <th>Status</th>
-                  <th>Expiry Date</th>
+                  <th>Validity</th>
                   <th>Actions</th>
                 </tr>
               </thead>
 
               <tbody>
-                {filteredRecords.length ? (
+                {filteredRecords.length > 0 ? (
                   filteredRecords.map((record) => (
                     <tr key={record.id}>
-                      <td>{record.applicant_name || "—"}</td>
-
+                      <td>{getApplicantName(record) || "—"}</td>
                       <td>{record.application_id || "—"}</td>
-
-                      <td>{record.visa_grant_number || "—"}</td>
-
-                      <td>{record.travel_document_number || "—"}</td>
-
+                      <td>{record.grant_number || "—"}</td>
+                      <td>{record.travel_document || "—"}</td>
                       <td>{record.nationality || "—"}</td>
 
                       <td>
@@ -611,7 +750,7 @@ export default function Admin() {
                         </span>
                       </td>
 
-                      <td>{formatDate(record.expiry_date) || "—"}</td>
+                      <td>{formatDate(record.validity_date) || "—"}</td>
 
                       <td>
                         <div className="admin-actions">
