@@ -170,11 +170,7 @@ export default function Status() {
             <li>Enter the displayed verification code before submitting.</li>
           </ul>
 
-          <p className="status-notice">
-            This is an independent information interface and is not an official
-            government website. Results are displayed only when returned by an
-            authorized backend.
-          </p>
+          
         </section>
 
         {/* Status Form */}
