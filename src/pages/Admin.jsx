@@ -44,6 +44,16 @@ function formatDate(value) {
   return String(value).slice(0, 10);
 }
 
+function resolveFileUrl(path) {
+  if (!path) return "";
+
+  if (/^https?:\/\//i.test(path)) {
+    return path;
+  }
+
+  return `${API_URL}/${String(path).replace(/^\/+/, "")}`;
+}
+
 function getApplicantName(record) {
   return [record.surname, record.given_names].filter(Boolean).join(" ");
 }
@@ -95,7 +105,10 @@ export default function Admin() {
 
   const [photo, setPhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState("");
+  const [existingPhotoUrl, setExistingPhotoUrl] = useState("");
   const [pdf, setPdf] = useState(null);
+  const [pdfPreview, setPdfPreview] = useState("");
+  const [existingPdfUrl, setExistingPdfUrl] = useState("");
 
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -115,6 +128,19 @@ export default function Admin() {
 
     return () => URL.revokeObjectURL(objectUrl);
   }, [photo]);
+
+  // New application PDF preview
+  useEffect(() => {
+    if (!pdf) {
+      setPdfPreview("");
+      return undefined;
+    }
+
+    const objectUrl = URL.createObjectURL(pdf);
+    setPdfPreview(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [pdf]);
 
   // Load records
   const loadRecords = useCallback(async () => {
@@ -158,6 +184,8 @@ export default function Admin() {
     setForm({ ...EMPTY_FORM });
     setPhoto(null);
     setPdf(null);
+    setExistingPhotoUrl("");
+    setExistingPdfUrl("");
     setEditingId(null);
 
     const photoInput = document.getElementById("applicant-photo");
@@ -285,6 +313,14 @@ export default function Admin() {
 
     setPhoto(null);
     setPdf(null);
+
+    const photoPath =
+      record.photo_url || record.photo_path || record.image_url || record.photo || "";
+    setExistingPhotoUrl(photoPath ? resolveFileUrl(photoPath) : "");
+
+    setExistingPdfUrl(
+      record.pdf_url ? resolveFileUrl(record.pdf_url) : "",
+    );
     setError("");
     setSuccess("");
 
@@ -630,10 +666,39 @@ export default function Admin() {
               </small>
 
               {photoPreview && (
-                <div className="admin-photo-preview">
-                  <img src={photoPreview} alt="Selected applicant preview" />
-                  <span>{photo?.name}</span>
+                <div className="admin-photo-preview admin-photo-preview-card">
+                  <div className="admin-photo-preview-heading">
+                    <strong>New Photo Selected</strong>
+                    <span>{photo?.name}</span>
+                  </div>
+                  <img src={photoPreview} alt="New applicant photo preview" />
                 </div>
+              )}
+
+              {!photoPreview && existingPhotoUrl && (
+                <div className="admin-photo-preview admin-photo-preview-card">
+                  <div className="admin-photo-preview-heading">
+                    <strong>Existing Applicant Photo</strong>
+                    <a
+                      href={existingPhotoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Open image ↗
+                    </a>
+                  </div>
+                  <img
+                    src={existingPhotoUrl}
+                    alt="Existing applicant photo preview"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
+                  />
+                </div>
+              )}
+
+              {editingId && !existingPhotoUrl && !photoPreview && (
+                <small>No existing applicant photo URL found for this application.</small>
               )}
             </div>
 
@@ -658,12 +723,53 @@ export default function Admin() {
                 {editingId ? " Leave empty to keep the existing PDF." : ""}
               </small>
 
-              {pdf && (
-                <div className="admin-file-selected">
-                  <span>PDF selected</span>
-                  <strong>{pdf.name}</strong>
-                  <small>{(pdf.size / (1024 * 1024)).toFixed(2)} MB</small>
+              {pdf && pdfPreview && (
+                <div className="admin-pdf-preview">
+                  <div className="admin-pdf-preview-header">
+                    <div>
+                      <strong>New PDF Selected</strong>
+                      <small>{pdf.name}</small>
+                    </div>
+                    <span className="admin-pdf-size">
+                      {(pdf.size / (1024 * 1024)).toFixed(2)} MB
+                    </span>
+                  </div>
+
+                  <iframe
+                    src={pdfPreview}
+                    title="New application PDF preview"
+                    className="admin-pdf-frame"
+                  />
                 </div>
+              )}
+
+              {!pdf && existingPdfUrl && (
+                <div className="admin-pdf-preview">
+                  <div className="admin-pdf-preview-header">
+                    <div>
+                      <strong>Existing Application PDF</strong>
+                      <small>Previously uploaded document</small>
+                    </div>
+                    <a
+                      href={existingPdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="admin-pdf-open"
+                    >
+                      Open PDF ↗
+                    </a>
+                  </div>
+
+                  <iframe
+                    src={existingPdfUrl}
+                    title="Existing application PDF preview"
+                    className="admin-pdf-frame"
+                  />
+                </div>
+              )}
+
+              {editingId && !existingPdfUrl && !pdf && (
+                <small>No existing PDF found for this application.</small>
               )}
             </div>
 
