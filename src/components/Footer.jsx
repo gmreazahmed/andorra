@@ -13,11 +13,6 @@ export default function Footer() {
         <a href="/contact">Contact Us</a>
       </p>
 
-      <small>
-        Independent information resource. Not affiliated with or endorsed by the
-        Government of Andorra. Check official sources for current entry and visa
-        requirements.
-      </small>
     </footer>
   );
 }

@@ -316,13 +316,13 @@
 /* PRIMARY BUTTON */
 
 .sr-btn-primary {
-    background: #234b78;
+    background: #001a33;
     color: #fff;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
 }
 
 .sr-btn-primary:hover {
-    background: #193b62;
+    background: #3e70a8;
 }
 
 /* SECONDARY BUTTON */

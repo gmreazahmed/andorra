@@ -348,7 +348,7 @@ export default function Result({ result: resultProp }) {
           </button>
         )}
 
-        <Link to="/status" className="sr-btn sr-btn-secondary">
+        <Link to="/visa-status-check" className="sr-btn sr-btn-secondary">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M19 12H5" />
             <path d="m12 19-7-7 7-7" />
