@@ -1,4 +1,11 @@
-/* Result.css — responsive styling for the independent travel information result page */
+/* ==========================================
+   RESULT PAGE — FINAL CSS
+   Responsive | Desktop | Tablet | Mobile
+========================================== */
+
+/* ==========================================
+   MAIN WRAPPER
+========================================== */
 
 .sr-wrap {
     width: min(100% - 32px, 1024px);
@@ -7,6 +14,10 @@
     color: #172033;
     font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ==========================================
+   HEADING CARD
+========================================== */
 
 .sr-heading-card,
 .sr-card,
@@ -26,6 +37,8 @@
     text-align: center;
 }
 
+/* LOGO */
+
 .sr-heading-emblem {
     display: grid;
     width: 64px;
@@ -35,14 +48,17 @@
     border: 1px solid #dce2e9;
     border-radius: 50%;
     background: #f4f6f9;
-    color: #18365b;
-    font-size: 25px;
-    font-weight: 700;
 }
 
 .sr-heading-emblem img {
-    display: none;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 7px;
+    object-fit: contain;
 }
+
+/* HEADING TEXT */
 
 .sr-heading-content h1 {
     margin: 16px 0 0;
@@ -67,6 +83,8 @@
     line-height: 1.5;
 }
 
+/* HEADING BAND */
+
 .sr-heading-band {
     padding: 16px 24px;
     border-top: 1px solid #dce2e9;
@@ -81,10 +99,16 @@
     font-weight: 700;
 }
 
+/* ==========================================
+   APPLICANT CARD
+========================================== */
+
 .sr-card {
     margin-top: 32px;
     padding: 32px 36px;
 }
+
+/* APPLICANT PHOTO */
 
 .sr-top {
     display: flex;
@@ -118,13 +142,19 @@
     text-align: center;
 }
 
+/* ==========================================
+   APPLICATION DETAILS GRID
+========================================== */
+
 .sr-grid {
     margin-top: 24px;
 }
 
 .sr-detail-row {
     display: grid;
-    grid-template-columns: minmax(150px, 180px) minmax(0, 1fr) minmax(150px, 180px) minmax(0, 1fr);
+    grid-template-columns:
+        minmax(150px, 180px) minmax(0, 1fr) minmax(150px, 180px) minmax(0, 1fr);
+
     align-items: center;
     column-gap: 32px;
     row-gap: 10px;
@@ -136,6 +166,8 @@
 .sr-detail-row:last-child {
     border-bottom: 0;
 }
+
+/* FIELD LABEL */
 
 .sr-field-label p {
     margin: 0;
@@ -153,6 +185,8 @@
     line-height: 1.4;
 }
 
+/* FIELD VALUE */
+
 .sr-value {
     min-width: 0;
     margin: 0;
@@ -167,12 +201,18 @@
     min-height: 1px;
 }
 
+/* DATE NOTE */
+
 .sr-date-note {
     margin: 20px 0 0;
     color: #8993a2;
     font-size: 12px;
     line-height: 1.5;
 }
+
+/* ==========================================
+   APPLICATION STATUS
+========================================== */
 
 .sr-status-panel {
     margin-top: 32px;
@@ -203,7 +243,8 @@
     line-height: 1.6;
 }
 
-/* Neutral status treatments; these describe the record and do not certify entry. */
+/* STATUS COLORS */
+
 .sr-status-panel.status-approved {
     border-color: #8bbca0;
     background: #f1f8f3;
@@ -224,6 +265,10 @@
     background: #fff5f5;
     color: #8b2929;
 }
+
+/* ==========================================
+   ACTION BUTTONS
+========================================== */
 
 .sr-actions {
     display: flex;
@@ -249,8 +294,13 @@
     line-height: 1.25;
     text-decoration: none;
     cursor: pointer;
-    transition: background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    transition:
+        background-color 160ms ease,
+        box-shadow 160ms ease,
+        transform 160ms ease;
 }
+
+/* BUTTON ICON */
 
 .sr-btn svg {
     width: 17px;
@@ -263,6 +313,8 @@
     stroke-linejoin: round;
 }
 
+/* PRIMARY BUTTON */
+
 .sr-btn-primary {
     background: #234b78;
     color: #fff;
@@ -272,6 +324,8 @@
 .sr-btn-primary:hover {
     background: #193b62;
 }
+
+/* SECONDARY BUTTON */
 
 .sr-btn-secondary {
     background: #788493;
@@ -283,6 +337,8 @@
     background: #626e7d;
 }
 
+/* BUTTON FOCUS */
+
 .sr-btn:focus-visible {
     outline: 3px solid rgba(35, 75, 120, 0.25);
     outline-offset: 3px;
@@ -293,6 +349,10 @@
     opacity: 0.6;
 }
 
+/* ==========================================
+   FOOTNOTE
+========================================== */
+
 .sr-bottom-note {
     max-width: 850px;
     margin: 8px auto 0;
@@ -301,6 +361,10 @@
     line-height: 1.65;
     text-align: center;
 }
+
+/* ==========================================
+   EMPTY RESULT
+========================================== */
 
 .sr-empty {
     max-width: 680px;
@@ -329,12 +393,16 @@
 }
 
 .sr-empty p {
-    margin: 12px auto 22px;
     max-width: 500px;
+    margin: 12px auto 22px;
     color: #697586;
     font-size: 15px;
     line-height: 1.65;
 }
+
+/* ==========================================
+   TABLET RESPONSIVE
+========================================== */
 
 @media (max-width: 760px) {
     .sr-wrap {
@@ -356,7 +424,9 @@
     }
 
     .sr-detail-row {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-columns:
+            minmax(0, 1fr) minmax(0, 1fr);
+
         column-gap: 18px;
         min-height: 0;
         padding: 15px 0;
@@ -376,6 +446,10 @@
         font-size: 19px;
     }
 }
+
+/* ==========================================
+   MOBILE RESPONSIVE
+========================================== */
 
 @media (max-width: 480px) {
     .sr-wrap {
@@ -431,6 +505,10 @@
         font-size: 14px;
     }
 }
+
+/* ==========================================
+   PRINT STYLING
+========================================== */
 
 @media print {
     .sr-wrap {
